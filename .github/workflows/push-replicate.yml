@@ -1,0 +1,60 @@
+name: Push to Replicate
+
+on:
+  workflow_dispatch:
+    inputs:
+      model_name:
+        description: "Replicate model owner/name"
+        required: true
+        default: "nghimestudio/neu-tts"
+
+jobs:
+  push_to_replicate:
+    name: Push to Replicate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          docker-images: false
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download gated HF weights into image cache
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HUGGING_FACE_HUB_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_HOME: ${{ github.workspace }}/hf_cache
+        run: |
+          pip install -q "huggingface_hub>=0.23"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from huggingface_hub import snapshot_download
+
+          token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+          if not token:
+              raise SystemExit("HF_TOKEN secret is required (gated model neuphonic/neutts-nano)")
+
+          Path(os.environ["HF_HOME"]).mkdir(parents=True, exist_ok=True)
+          for repo in ("neuphonic/neutts-nano", "neuphonic/neucodec"):
+              path = snapshot_download(repo, token=token)
+              print(f"cached {repo} -> {path}")
+          PY
+          du -sh hf_cache
+
+      - name: Setup Cog
+        uses: replicate/setup-cog@v2
+        with:
+          token: ${{ secrets.REPLICATE_CLI_AUTH_TOKEN }}
+          cog-version: v0.16.12
+
+      - name: Push to Replicate
+        run: cog push "r8.im/${{ inputs.model_name }}"

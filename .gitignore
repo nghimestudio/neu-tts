@@ -1,3 +1,6 @@
+# Baked HF cache (downloaded in CI, not committed)
+hf_cache/
+
 # MacOS
 **.DS_Store
 

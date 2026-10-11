@@ -1,0 +1,18 @@
+# NeuTTS Nano (English) — https://huggingface.co/neuphonic/neutts-nano
+build:
+  gpu: true
+  cuda: "12.1"
+  python_version: "3.12"
+  python_requirements: requirements-cog.txt
+  system_packages:
+    - "espeak-ng"
+    - "ffmpeg"
+    - "libsndfile1"
+
+predict: "predict.py:Predictor"
+image: "r8.im/nghimestudio/neu-tts"
+
+# HF weights are downloaded into ./hf_cache by GitHub Actions before `cog push`.
+environment:
+  - "HF_HOME=/src/hf_cache"
+  - "HUGGINGFACE_HUB_CACHE=/src/hf_cache/hub"

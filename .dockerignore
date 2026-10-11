@@ -1,0 +1,22 @@
+.git/
+.github/
+.pre-commit-config.yaml
+tests/
+examples/
+TRAINING.md
+*.md
+!README.md
+output.wav
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+requirements-dev.txt
+CMakeLists.txt
+# Local package source not needed — installed from PyPI via requirements-cog.txt
+neutts/
+neuttsair/
+# Keep sample voices + baked HF cache
+!samples/**
+!hf_cache/**
