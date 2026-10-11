@@ -6,6 +6,7 @@ examples/
 TRAINING.md
 *.md
 !README.md
+!REPLICATE.md
 output.wav
 .venv/
 __pycache__/
@@ -14,9 +15,9 @@ __pycache__/
 .pytest_cache/
 requirements-dev.txt
 CMakeLists.txt
-# Local package source not needed — installed from PyPI via requirements-cog.txt
 neutts/
 neuttsair/
-# Keep sample voices + baked HF cache
+hf_cache/
+# Keep sample voices + local HF weights for the image
 !samples/**
-!hf_cache/**
+!weights/**

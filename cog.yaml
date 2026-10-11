@@ -11,8 +11,3 @@ build:
 
 predict: "predict.py:Predictor"
 image: "r8.im/nghimestudio/neu-tts"
-
-# HF weights are downloaded into ./hf_cache by GitHub Actions before `cog push`.
-environment:
-  - "HF_HOME=/src/hf_cache"
-  - "HUGGINGFACE_HUB_CACHE=/src/hf_cache/hub"

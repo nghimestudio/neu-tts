@@ -1,5 +1,6 @@
-# Baked HF cache (downloaded in CI, not committed)
+# Baked HF weights/cache (downloaded in CI, not committed)
 hf_cache/
+weights/
 
 # MacOS
 **.DS_Store

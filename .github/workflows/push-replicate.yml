@@ -27,11 +27,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Download gated HF weights into image cache
+      - name: Download gated HF weights into build context
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HUGGING_FACE_HUB_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_HOME: ${{ github.workspace }}/hf_cache
         run: |
           pip install -q "huggingface_hub>=0.23"
           python - <<'PY'
@@ -41,14 +40,23 @@ jobs:
 
           token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
           if not token:
-              raise SystemExit("HF_TOKEN secret is required (gated model neuphonic/neutts-nano)")
+              raise SystemExit("HF_TOKEN secret is required (gated model)")
 
-          Path(os.environ["HF_HOME"]).mkdir(parents=True, exist_ok=True)
-          for repo in ("neuphonic/neutts-nano", "neuphonic/neucodec"):
-              path = snapshot_download(repo, token=token)
-              print(f"cached {repo} -> {path}")
+          root = Path("weights")
+          root.mkdir(exist_ok=True)
+          mapping = {
+              "neuphonic/neutts-nano": root / "neutts-nano",
+              "neuphonic/neucodec": root / "neucodec",
+          }
+          for repo, dest in mapping.items():
+              path = snapshot_download(repo, local_dir=str(dest), token=token)
+              files = [p for p in Path(path).rglob("*") if p.is_file()]
+              print(f"cached {repo} -> {path} ({len(files)} files)")
+              if len(files) < 3:
+                  raise SystemExit(f"Too few files for {repo}")
           PY
-          du -sh hf_cache
+          du -sh weights
+          find weights -type f | head -40
 
       - name: Setup Cog
         uses: replicate/setup-cog@v2
